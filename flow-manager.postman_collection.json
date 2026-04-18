@@ -1,0 +1,217 @@
+{
+  "info": {
+    "name": "Flow Manager",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Run Flow",
+      "item": [
+        {
+          "name": "Full flow — all tasks succeed",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/flows/run",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flow\": {\n    \"id\": \"flow123\",\n    \"name\": \"Data processing flow\",\n    \"start_task\": \"task1\",\n    \"tasks\": [\n      { \"name\": \"task1\", \"description\": \"Fetch data\" },\n      { \"name\": \"task2\", \"description\": \"Process data\" },\n      { \"name\": \"task3\", \"description\": \"Store data\" }\n    ],\n    \"conditions\": [\n      {\n        \"name\": \"condition_task1_result\",\n        \"description\": \"If task1 succeeded go to task2, otherwise stop\",\n        \"source_task\": \"task1\",\n        \"outcome\": \"success\",\n        \"target_task_success\": \"task2\",\n        \"target_task_failure\": \"end\"\n      },\n      {\n        \"name\": \"condition_task2_result\",\n        \"description\": \"If task2 succeeded go to task3, otherwise stop\",\n        \"source_task\": \"task2\",\n        \"outcome\": \"success\",\n        \"target_task_success\": \"task3\",\n        \"target_task_failure\": \"end\"\n      }\n    ]\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Flow aborts — task2 fails (no raw data)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/flows/run",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flow\": {\n    \"id\": \"fail_flow\",\n    \"name\": \"Flow that fails at task2\",\n    \"start_task\": \"task2\",\n    \"tasks\": [\n      { \"name\": \"task2\", \"description\": \"Process data\" },\n      { \"name\": \"task3\", \"description\": \"Store data\" }\n    ],\n    \"conditions\": [\n      {\n        \"name\": \"cond\",\n        \"description\": \"If task2 succeeded go to task3, otherwise stop\",\n        \"source_task\": \"task2\",\n        \"outcome\": \"success\",\n        \"target_task_success\": \"task3\",\n        \"target_task_failure\": \"end\"\n      }\n    ]\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Flow aborts — task3 fails (no processed data)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/flows/run",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flow\": {\n    \"id\": \"fail_store\",\n    \"name\": \"Flow that fails at task3\",\n    \"start_task\": \"task3\",\n    \"tasks\": [\n      { \"name\": \"task3\", \"description\": \"Store data\" }\n    ],\n    \"conditions\": []\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Single task — no conditions",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/flows/run",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flow\": {\n    \"id\": \"single_task_flow\",\n    \"name\": \"Just fetch\",\n    \"start_task\": \"task1\",\n    \"tasks\": [\n      { \"name\": \"task1\", \"description\": \"Fetch data\" }\n    ],\n    \"conditions\": []\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Two tasks — stop after task2",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/flows/run",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flow\": {\n    \"id\": \"two_task_flow\",\n    \"name\": \"Fetch and process\",\n    \"start_task\": \"task1\",\n    \"tasks\": [\n      { \"name\": \"task1\", \"description\": \"Fetch data\" },\n      { \"name\": \"task2\", \"description\": \"Process data\" }\n    ],\n    \"conditions\": [\n      {\n        \"name\": \"cond1\",\n        \"description\": \"Go to task2 if task1 succeeded\",\n        \"source_task\": \"task1\",\n        \"outcome\": \"success\",\n        \"target_task_success\": \"task2\",\n        \"target_task_failure\": \"end\"\n      }\n    ]\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Generic task — matched by keyword in description",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/flows/run",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flow\": {\n    \"id\": \"keyword_flow\",\n    \"name\": \"Keyword dispatch flow\",\n    \"start_task\": \"step_a\",\n    \"tasks\": [\n      { \"name\": \"step_a\", \"description\": \"Retrieve records from the source\" },\n      { \"name\": \"step_b\", \"description\": \"Transform and enrich the records\" },\n      { \"name\": \"step_c\", \"description\": \"Persist the results to storage\" }\n    ],\n    \"conditions\": [\n      {\n        \"name\": \"cond_a\",\n        \"description\": \"\",\n        \"source_task\": \"step_a\",\n        \"outcome\": \"success\",\n        \"target_task_success\": \"step_b\",\n        \"target_task_failure\": \"end\"\n      },\n      {\n        \"name\": \"cond_b\",\n        \"description\": \"\",\n        \"source_task\": \"step_b\",\n        \"outcome\": \"success\",\n        \"target_task_success\": \"step_c\",\n        \"target_task_failure\": \"end\"\n      }\n    ]\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Generic fallback — unknown task name and description",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/flows/run",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flow\": {\n    \"id\": \"generic_flow\",\n    \"name\": \"All generic tasks\",\n    \"start_task\": \"do_something\",\n    \"tasks\": [\n      { \"name\": \"do_something\", \"description\": \"Execute some operation\" },\n      { \"name\": \"do_another\", \"description\": \"Run another operation\" }\n    ],\n    \"conditions\": [\n      {\n        \"name\": \"cond1\",\n        \"description\": \"\",\n        \"source_task\": \"do_something\",\n        \"outcome\": \"success\",\n        \"target_task_success\": \"do_another\",\n        \"target_task_failure\": \"end\"\n      }\n    ]\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Invalid payload — missing required fields",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/flows/run",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flow\": {}\n}"
+            }
+          }
+        },
+        {
+          "name": "Invalid payload — empty body",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/flows/run",
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "start_task does not exist in tasks list",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/flows/run",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flow\": {\n    \"id\": \"bad_start\",\n    \"name\": \"Bad start task\",\n    \"start_task\": \"nonexistent\",\n    \"tasks\": [\n      { \"name\": \"task1\", \"description\": \"Fetch data\" }\n    ],\n    \"conditions\": []\n  }\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Validate Flow",
+      "item": [
+        {
+          "name": "Valid flow",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/flows/validate",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flow\": {\n    \"id\": \"flow123\",\n    \"name\": \"Data processing flow\",\n    \"start_task\": \"task1\",\n    \"tasks\": [\n      { \"name\": \"task1\", \"description\": \"Fetch data\" },\n      { \"name\": \"task2\", \"description\": \"Process data\" },\n      { \"name\": \"task3\", \"description\": \"Store data\" }\n    ],\n    \"conditions\": [\n      {\n        \"name\": \"condition_task1_result\",\n        \"description\": \"If task1 succeeded go to task2, otherwise stop\",\n        \"source_task\": \"task1\",\n        \"outcome\": \"success\",\n        \"target_task_success\": \"task2\",\n        \"target_task_failure\": \"end\"\n      },\n      {\n        \"name\": \"condition_task2_result\",\n        \"description\": \"If task2 succeeded go to task3, otherwise stop\",\n        \"source_task\": \"task2\",\n        \"outcome\": \"success\",\n        \"target_task_success\": \"task3\",\n        \"target_task_failure\": \"end\"\n      }\n    ]\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Invalid — start_task not in tasks",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/flows/validate",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flow\": {\n    \"id\": \"bad_flow\",\n    \"name\": \"Bad start\",\n    \"start_task\": \"nonexistent\",\n    \"tasks\": [\n      { \"name\": \"task1\", \"description\": \"Fetch data\" }\n    ],\n    \"conditions\": []\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Invalid — condition target_task_success does not exist",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/flows/validate",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flow\": {\n    \"id\": \"bad_cond\",\n    \"name\": \"Bad condition target\",\n    \"start_task\": \"task1\",\n    \"tasks\": [\n      { \"name\": \"task1\", \"description\": \"Fetch data\" }\n    ],\n    \"conditions\": [\n      {\n        \"name\": \"cond1\",\n        \"description\": \"\",\n        \"source_task\": \"task1\",\n        \"outcome\": \"success\",\n        \"target_task_success\": \"ghost_task\",\n        \"target_task_failure\": \"end\"\n      }\n    ]\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Invalid — multiple errors at once",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/flows/validate",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flow\": {\n    \"id\": \"multi_error\",\n    \"name\": \"Multiple validation errors\",\n    \"start_task\": \"missing_start\",\n    \"tasks\": [\n      { \"name\": \"task1\", \"description\": \"Fetch data\" }\n    ],\n    \"conditions\": [\n      {\n        \"name\": \"cond1\",\n        \"description\": \"\",\n        \"source_task\": \"task1\",\n        \"outcome\": \"success\",\n        \"target_task_success\": \"ghost_task\",\n        \"target_task_failure\": \"also_missing\"\n      }\n    ]\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Valid — no conditions (single task flow)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/flows/validate",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flow\": {\n    \"id\": \"minimal\",\n    \"name\": \"Minimal flow\",\n    \"start_task\": \"task1\",\n    \"tasks\": [\n      { \"name\": \"task1\", \"description\": \"Fetch data\" }\n    ],\n    \"conditions\": []\n  }\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

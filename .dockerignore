@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+coverage.xml
+tests/
+*.md
+req.txt
+pyproject.toml
+.dockerignore
+.github/
