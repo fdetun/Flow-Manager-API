@@ -118,3 +118,4 @@ venv.bak/
 
 # VS Code
 .vscode/
+*.html

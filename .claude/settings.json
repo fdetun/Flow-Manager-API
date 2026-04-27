@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uvicorn main:app --port 8000)",
+      "Bash(curl -s http://localhost:8000/health)",
+      "Bash(wget -q -O - http://localhost:8000/health)",
+      "Bash(python -c \"import httpx; r = httpx.get\\('http://localhost:8000/health'\\); print\\(r.status_code, r.json\\(\\)\\)\")",
+      "Bash(python -c ' *)",
+      "Read(//proc/5276/net/**)",
+      "Bash(awk '{print $2}')",
+      "Bash(awk '$2 ~ /:1F40$/ {print $0}')",
+      "Read(//proc/**)",
+      "Bash(kill 16437)",
+      "Bash(pkill -f \"uvicorn main:app\")",
+      "Bash(uvicorn main:app --port 8000 --workers 1)"
+    ]
+  }
+}
