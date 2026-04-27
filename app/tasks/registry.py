@@ -11,6 +11,7 @@ def register(name: str):
     def decorator(fn: TaskHandler) -> TaskHandler:
         _REGISTRY[name] = fn
         return fn
+
     return decorator
 
 

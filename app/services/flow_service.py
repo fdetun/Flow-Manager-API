@@ -19,9 +19,7 @@ def validate_flow(flow: Flow) -> dict:
 
     for cond in flow.conditions:
         if cond.source_task not in task_names:
-            errors.append(
-                f"Condition '{cond.name}': source_task '{cond.source_task}' not defined."
-            )
+            errors.append(f"Condition '{cond.name}': source_task '{cond.source_task}' not defined.")
         if cond.target_task_success not in task_names:
             errors.append(
                 f"Condition '{cond.name}': target_task_success "
@@ -39,5 +37,5 @@ def validate_flow(flow: Flow) -> dict:
     return {"valid": True, "flow_id": flow.id, "task_count": len(flow.tasks)}
 
 
-def execute_flow(flow: Flow) -> FlowResult:
-    return run_flow(flow)
+async def execute_flow(flow: Flow) -> FlowResult:
+    return await run_flow(flow)

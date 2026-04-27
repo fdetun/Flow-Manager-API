@@ -4,7 +4,7 @@ from app.tasks.registry import register
 
 
 @register(name="task3")
-def store_data(task_name: str, context: dict) -> TaskResult:
+async def store_data(task_name: str, context: dict) -> TaskResult:
     processed = context.get("processed_data")
     if not processed:
         return TaskResult(

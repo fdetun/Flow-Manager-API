@@ -24,7 +24,7 @@ def _find_task(flow: Flow, task_name: str):
     return None
 
 
-def run_flow(flow: Flow) -> FlowResult:
+async def run_flow(flow: Flow) -> FlowResult:
     context: dict = {}
     executed: list[TaskResult] = []
     current_task_name = flow.start_task
@@ -42,7 +42,7 @@ def run_flow(flow: Flow) -> FlowResult:
             )
 
         try:
-            result = execute_task(task.name, context)
+            result = await execute_task(task.name, context)
         except ValueError as e:
             return FlowResult(
                 flow_id=flow.id,
@@ -62,6 +62,7 @@ def run_flow(flow: Flow) -> FlowResult:
         next_task = condition.target_task_success if succeeded else condition.target_task_failure
 
         if next_task == FLOW_END:
+            print("hi")
             return FlowResult(
                 flow_id=flow.id,
                 flow_name=flow.name,

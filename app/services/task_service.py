@@ -3,6 +3,6 @@ from app.models.schemas import TaskResult
 from app.tasks.registry import resolve
 
 
-def execute_task(task_name: str, context: dict) -> TaskResult:
+async def execute_task(task_name: str, context: dict) -> TaskResult:
     handler = resolve(task_name)
-    return handler(task_name, context)
+    return await handler(task_name, context)

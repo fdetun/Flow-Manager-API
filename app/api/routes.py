@@ -11,10 +11,10 @@ router = APIRouter()
 
 
 @router.post("/flows/run", response_model=FlowResult)
-def run_flow_endpoint(request: FlowRequest) -> FlowResult:
+async def run_flow_endpoint(request: FlowRequest) -> FlowResult:
     logger.info("Running flow '%s' (id=%s)", request.flow.name, request.flow.id)
     try:
-        result = execute_flow(request.flow)
+        result = await execute_flow(request.flow)
         logger.info("Flow '%s' finished with status=%s", request.flow.id, result.status)
         return result
     except Exception as e:
